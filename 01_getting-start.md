@@ -110,3 +110,113 @@ docker help you build and manage "containers"
   * bigger impact on OS slower, higher disk space usage
   * sharing , rebuilding and distribution can be challenging 
   * encapsulate whole machines instead of just apps/environments
+
+
+
+## Docker Setup Overview
+
+
+* macos 
+* windows
+  * if your system has minimum requirement you can install docker desktop
+  * if you don't have the requirement, you need to install docker toolbox 
+* linux
+  * linux natively support the docker engine 
+
+
+
+
+
+
+in the end you you have installed docker engine 
+if you are able to install docker desktop you have ***daemon*** and ***cli***
+
+there is a service called ***Docker Hub***
+there is a tool called ***Docker Compose***
+
+
+## Getting your Hands Dirty 
+
+we have created file with no extension `Dockerfile` 
+
+```Dockerfile
+FROM node:14
+
+WORKDIR /app
+
+COPY package.json
+
+RUN npm install
+
+COPY . . 
+
+EXPOSE 3000
+
+CMD ["node", "app.mjs"]
+```
+
+
+these docker is for the project with 3 files
+`app.mjs`
+```js
+import express from "express";
+
+import connectToDatabase from "./helpers.mjs";
+
+const app = express();
+
+app.get("/", async (req, res) => {
+  res.send("<h2>Hi there!</h2>");
+});
+
+await connectToDatabase();
+
+app.listen(3000);
+```
+`helpers.js`
+```js
+const connectToDatabase = async () => {
+  const dummyPromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve();
+    }, 1000);
+  });
+  return dummyPromise;
+};
+
+export default connectToDatabase;
+```
+and a package.json
+`package.json`
+```json
+{
+  "name": "docker-complete",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git-codecommit.us-east-1.amazonaws.com/v1/repos/docker-complete-guide"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
+```
+
+
+that `Dockerfile` describe the container and is couple of instruction :
+* we want to use NodeJS as base `image` (we want that NODEJS available inside our container)
+* we have certain directory `/app` in the container 
+* then copy the `package.json` file into our working directory 
+* then run the command `npm install`
+* copy the rest of the code 
+* then we expose port 300 to the outside world
+* then we execute the `app.mjs` with the node command 
+
+
