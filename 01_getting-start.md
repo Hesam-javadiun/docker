@@ -1,6 +1,12 @@
+<!-- omit from toc -->
 # Docker
+- [1. What is docker](#1-what-is-docker)
+- [2. Why Docker and Container](#2-why-docker-and-container)
+- [3. Virtual Machine Vs Docker Containers](#3-virtual-machine-vs-docker-containers)
+- [4. Docker Setup Overview](#4-docker-setup-overview)
+- [5. Getting your Hands Dirty](#5-getting-your-hands-dirty)
 
-## What is docker
+## 1. What is docker
 
 docker is a container technology : a tool for creating and managing containers
 
@@ -17,7 +23,7 @@ support for container is built into modern operating systems
 and Docker simplifies the creation and management fo such containers
 
 
-## Why Docker and Container 
+## 2. Why Docker and Container 
 
 why do we need container in software development? 
 
@@ -59,7 +65,7 @@ and if you have multiple projects that may clashing tools/versions between diffe
 when switching between projects, tool used in project A should not clash with tools used in project B 
 
 
-## Virtual Machine Vs Docker Containers
+## 3. Virtual Machine Vs Docker Containers
 
 so machines running on our machines, virtual machines with virtual operating systems encapsulated in their own shell independent from our host operating system
 
@@ -113,7 +119,7 @@ docker help you build and manage "containers"
 
 
 
-## Docker Setup Overview
+## 4. Docker Setup Overview
 
 
 * macos 
@@ -135,7 +141,7 @@ there is a service called ***Docker Hub***
 there is a tool called ***Docker Compose***
 
 
-## Getting your Hands Dirty 
+## 5. Getting your Hands Dirty 
 
 we have created file with no extension `Dockerfile` 
 
