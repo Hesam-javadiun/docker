@@ -1,7 +1,17 @@
-# Docker Images and Containers the Core Building Blocks
+
+<!-- omit from toc -->
+#  Docker Images and Containers the Core Building Blocks
+
+- [1. Images and Containers What and Why](#1-images-and-containers-what-and-why)
+- [2. Using and Running External (Pre-Built)](#2-using-and-running-external-pre-built)
+- [3. Our Gaol a NodeJS App](#3-our-gaol-a-nodejs-app)
+- [4. Building Our Own Image with DockerFile](#4-building-our-own-image-with-dockerfile)
+- [5. Running a Container Based on Our Own Image](#5-running-a-container-based-on-our-own-image)
+- [6. Images are Read-Only](#6-images-are-read-only)
+- [7. Understanding Image Layers](#7-understanding-image-layers)
 
 
-## Images and Containers What and Why 
+## 1. Images and Containers What and Why 
 
 * container 
   * contain application and dependencies 
@@ -28,7 +38,7 @@ the container will be the concrete running instance of such an image
 
 we run containers based on image this is core fundamental concept
 
-## Using and Running External (Pre-Built)
+## 2. Using and Running External (Pre-Built)
 
 we need an image?
 
@@ -72,12 +82,12 @@ and in the end we going to that node interactive terminal
 
 images is behind the scenes, is hold all the logic and all the code a container needs and then we create an instance of an image with `run` command 
 
-## Our Gaol a NodeJS App
+## 3. Our Gaol a NodeJS App
 
 typically you would pull into your official base image and then add your  code on top of that to execute your code with that image 
 
 
-## Building Our Own Image with DockerFile  
+## 4. Building Our Own Image with DockerFile  
 
 we need to create a new file `Dockerfile`( this is special name which will be identified by Docker) 
 
@@ -186,4 +196,131 @@ RUN npm install
 
 CMD ["node", "server.js"]
 ```
+
+## 5. Running a Container Based on Our Own Image 
+
+first of all we wanna create an image based on our docker file, that `build {path}` command does 
+
+```
+docker build .
+```
+if it build successfully in the end it will give you an id where you run container based on that image
+```
+docker run {image-id}
+```
+
+if execute this command if won't finish, it will keep running the reason for that is this line in docker file 
+
+```Dockerfile
+CMD ["node", "server.js"]
+```
+now a problem arise if you visit the `localhost:80` you won't see the website
+
+lets shut down that container
+let see the containers they are processing
+```
+docker ps
+```
+`docker ps` without `-a` you see only the running containers 
+
+by running the command 
+
+```
+docker stop {container-name}
+```
+container will shout down
+
+this docker file is for documentation purposes, in order to work we need to add `-p` flag to run command
+
+```
+docker run -p 3000:80 {image-id}
+```
+`p` stands for publish and this allow us to tell docker under which local port on our machine , this internal `EXPOSE 80` docker container-specific port should be accessible, `-p 3000:80` 80 is the docker container expose and the 3000 is the local port on our machine we tell docker to expose 
+
+
+## 6. Images are Read-Only
+
+you must understand if you have modified some code, the changes won't reflect in the container that is running, 
+
+we instruct docker to copy everything inside `app` folder into the container file image system, 
+
+that image is snapshot of my source code and are readonly, ***an image is really closed template in the end ***
+
+
+## 7. Understanding Image Layers
+
+images are layer based when you build an image only the instructions where something changed and the instructions there after are ***re-evaluated *** 
+
+we have changed the code and rebuild an image , after we didn't any changes to source code then run build command we would see the it will finish super fast like a quarter of a second
+
+docker basically recognized that for all these instructions and use the cached for results for each instruction
+
+every instruction represents a layer in your docker file 
+
+
+* an image
+  * instruction #4 : image layer4
+  * instruction #3 : image layer3
+  * instruction #2 : image layer2
+  * instruction #1 : image layer1
+
+once the image has been executed the image is locked in and code in there can't change 
+
+
+if we run a container based on an image, that container basically adds a new extra layer on top of the image which is that running application that running code the result of executing command in docker file 
+
+```Dockerfile
+CMD ["node", "server.js"]
+```
+
+* a container 
+  * run command instruction #4 : container layer
+  * instruction #4 : image layer4
+  * instruction #3 : image layer3
+  * instruction #2 : image layer2
+  * instruction #1 : image layer1
+
+this add the final layer which only becomes active once you run an image as a  layer 
+
+all the instructions before that final instruction are already part of the image though as separate layers
+
+
+this layer architecture exist to speed up the creation of images since docker only rebuilds and re-executes what needs to be executed 
+
+
+we can do a tiny optimization potential for our docker file 
+consider this 
+
+```Dockerfile
+FROM node 
+
+WORKDIR /app
+
+COPY . ./
+
+RUN npm install
+
+CMD ["node", "server.js"]
+```
+we can optimize it to this 
+
+```Dockerfile
+FROM node 
+
+WORKDIR /app
+
+COPY package.json /app
+
+RUN npm install
+
+COPY . ./
+
+CMD ["node", "server.js"]
+```
+duo to docker layer architecture based on the fist docker (because `RUN npm install` is under the `COPY . ./`  changing source code makes npm install command invalidated and run again on every change ) changing the package.json, does ***not*** lead to re-executing `RUN npm install` so that's why we add `COPY package.json` to ensure the to have the latest package.json file 
+and move up the `RUN npm install` instruction and move down the `COPY . ./` instruction,
+
+now by changing the source code npm run install will not invalidated and npm run install will executed 
+ 
+
 
